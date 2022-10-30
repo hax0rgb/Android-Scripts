@@ -1,7 +1,24 @@
 from xml.dom.minidom import parseString
+import sys
+import os
+
+class bcolors:
+    TITLE = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    INFO = '\033[93m'
+    OKRED = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    BGRED = '\033[41m'
+    UNDERLINE = '\033[4m'
+    FGWHITE = '\033[37m'
+    FAIL = '\033[95m'
+
+path = sys.argv[1]
 
 data = '' # string data from file
-with open('AndroidManifest.xml', 'r') as f:
+with open(path, 'r') as f:
     data = f.read()
       
 dom = parseString(data)
@@ -12,9 +29,8 @@ providers = dom.getElementsByTagName('provider')
 receivers = dom.getElementsByTagName('receiver')
 services = dom.getElementsByTagName('service')
 
-print("")
-print("======Permissions Used======")
-print("")
+
+print(bcolors.OKGREEN+bcolors.BOLD+"\n""Permissions Used:"+bcolors.ENDC+"\n")
 
 permissions1 = [] # holder for all permissions as we gather them
 # Iterate over all the uses-permission nodes
@@ -27,10 +43,7 @@ permission_list1 = list(set(permissions1))
 for permission_sorted_1 in sorted(permission_list1): # sort permissions and iterate
     print(permission_sorted_1) # print permission name
 
-
-print("")
-print("======Permissions Declared in IPC Components======")
-print("")
+print(bcolors.OKGREEN+bcolors.BOLD+"\n""Permissions Declared in IPC Components:"+bcolors.ENDC+"\n")
 
 permissions2 = []
 
@@ -63,9 +76,7 @@ for permission_sorted_2 in sorted(permission_list2): # sort permissions and iter
     print(permission_sorted_2) # print permission name
 
 
-print("")
-print("======Undeclared Permissions======")
-print("")
+print(bcolors.OKGREEN+bcolors.BOLD+"\n""Undeclared Permissions:"+bcolors.ENDC+"\n")
 
 undeclared_list = []
 for element in permissions2:
@@ -75,4 +86,4 @@ for element in permissions2:
 undeclared = list(set(undeclared_list))
 
 for undeclared_sorted in sorted(undeclared): # sort permissions and iterate
-    print(undeclared_sorted) # print permission name
+    print(bcolors.OKRED+bcolors.BOLD+undeclared_sorted+bcolors.ENDC+"\n") # print permission name
