@@ -17,8 +17,9 @@ class AndroidManifestAnalyzer:
         ns = {'android': 'http://schemas.android.com/apk/res/android'}
         for activity in self.root.findall(".//activity", namespaces=ns):
             exported = activity.get('{http://schemas.android.com/apk/res/android}exported')
+            enabled = activity.get('{http://schemas.android.com/apk/res/android}enabled', "true")
             intent_filters = activity.findall(".//intent-filter", namespaces=ns)
-            if exported == "true" or (exported is None and intent_filters):
+            if (exported == "true" or (exported is None and intent_filters)) and enabled == "true":
                 name = activity.get('{http://schemas.android.com/apk/res/android}name')
                 activities.append(name)
         return activities
@@ -28,7 +29,8 @@ class AndroidManifestAnalyzer:
         ns = {'android': 'http://schemas.android.com/apk/res/android'}
         for provider in self.root.findall(".//provider", namespaces=ns):
             exported = provider.get('{http://schemas.android.com/apk/res/android}exported')
-            if exported == "true":
+            enabled = provider.get('{http://schemas.android.com/apk/res/android}enabled', "true")
+            if exported == "true" and enabled == "true":
                 name = provider.get('{http://schemas.android.com/apk/res/android}name')
                 providers.append(name)
         return providers
@@ -38,7 +40,8 @@ class AndroidManifestAnalyzer:
         ns = {'android': 'http://schemas.android.com/apk/res/android'}
         for service in self.root.findall(".//service", namespaces=ns):
             exported = service.get('{http://schemas.android.com/apk/res/android}exported')
-            if exported == "true":
+            enabled = service.get('{http://schemas.android.com/apk/res/android}enabled', "true")
+            if exported == "true" and enabled == "true":
                 name = service.get('{http://schemas.android.com/apk/res/android}name')
                 services.append(name)
         return services
@@ -48,7 +51,8 @@ class AndroidManifestAnalyzer:
         ns = {'android': 'http://schemas.android.com/apk/res/android'}
         for receiver in self.root.findall(".//receiver", namespaces=ns):
             exported = receiver.get('{http://schemas.android.com/apk/res/android}exported')
-            if exported == "true":
+            enabled = receiver.get('{http://schemas.android.com/apk/res/android}enabled', "true")
+            if exported == "true" and enabled == "true":
                 name = receiver.get('{http://schemas.android.com/apk/res/android}name')
                 receivers.append(name)
         return receivers
