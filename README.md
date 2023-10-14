@@ -17,3 +17,9 @@ For Multiple Decompiled Apps:
 ```
 python3 firebase-database-checker.py -D /Users/bgaurang/Android-pentest/Research-apps/Hackerone/Public-Decompiled -r -w
 ```
+
+### Deepsecrets
+
+```
+deepsecrets --target-dir <source-path> --outfile deepsecrets.json
+```
