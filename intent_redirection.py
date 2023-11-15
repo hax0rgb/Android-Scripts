@@ -10,19 +10,27 @@ RESET_COLOR = "\033[0m"
 
 class AndroidManifestAnalyzer:
     def __init__(self, manifest_path):
+        self.ns = self.extract_namespaces(manifest_path)
         self.tree = ET.parse(manifest_path)
         self.root = self.tree.getroot()
 
+    def extract_namespaces(self, manifest_path):
+        namespaces = {}
+        for event, elem in ET.iterparse(manifest_path, events=('start-ns',)):
+            namespaces[elem[0]] = elem[1]
+        return namespaces
+
     def get_exported_components(self):
         components = []
-        ns = {'android': 'http://schemas.android.com/apk/res/android'}
-        for component in self.root.findall(".//*", namespaces=ns):
-            exported = component.get('{http://schemas.android.com/apk/res/android}exported')
-            enabled = component.get('{http://schemas.android.com/apk/res/android}enabled', "true")
-            intent_filters = component.findall(".//intent-filter", namespaces=ns)
-            if (exported == "true" or (exported is None and intent_filters)) and enabled == "true":
-                name = component.get('{http://schemas.android.com/apk/res/android}name')
-                components.append(name)
+        for component in self.root.findall(".//*"):
+            if 'android' in self.ns:
+                android_ns = '{' + self.ns['android'] + '}'
+                exported = component.get(android_ns + 'exported')
+                enabled = component.get(android_ns + 'enabled', "true")
+                intent_filters = component.findall(".//intent-filter")
+                if (exported == "true" or (exported is None and intent_filters)) and enabled == "true":
+                    name = component.get(android_ns + 'name')
+                    components.append(name)
         return components
 
 def check_intent_redirection(file_path, component_full_name, exported_components):
@@ -94,23 +102,30 @@ def find_java_files(decompiled_folder, component_name):
         return filename
     return None
 
-def main(decompiled_folder):
-    manifest_path = find_manifest_file(decompiled_folder)
-    analyzer = AndroidManifestAnalyzer(manifest_path)
-    exported_components = analyzer.get_exported_components()
+def main(decompiled_folder, verbose):
+    for subdir, dirs, files in os.walk(decompiled_folder):
+        manifest_path = find_manifest_file(subdir)
+        if not manifest_path:
+            continue  # Skip directories without an AndroidManifest.xml
 
-    for component in exported_components:
-        file_path = find_java_files(decompiled_folder, component)
+        analyzer = AndroidManifestAnalyzer(manifest_path)
+        exported_components = analyzer.get_exported_components()
 
-        if file_path:
-            vulnerabilities_output = check_intent_redirection(file_path, component, exported_components)
-            if vulnerabilities_output:
-                print(vulnerabilities_output)
-        else:
-            print(f"Source code file not found for component: {component}")
+        for component in exported_components:
+            if component is None:
+                continue  # Skip if the component is None
+
+            file_path = find_java_files(subdir, component)
+            if file_path:
+                vulnerabilities_output = check_intent_redirection(file_path, component, exported_components)
+                if vulnerabilities_output:
+                    print(vulnerabilities_output)
+            elif verbose:
+                print(f"Source code file not found for component: {component} in directory: {subdir}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Check for intent redirection vulnerabilities in a decompiled Android app.")
     parser.add_argument('folder', help="Path to the decompiled app folder")
+    parser.add_argument('-v', '--verbose', action='store_true', help="Enable verbose output")
     args = parser.parse_args()
-    main(args.folder)
+    main(args.folder, args.verbose)
