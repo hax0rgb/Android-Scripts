@@ -4,12 +4,14 @@ import os
 from colorama import Fore, Style, init
 import glob
 from collections import defaultdict
+from lxml import etree as ET
 
 init(autoreset=True)
 
 class AndroidManifestAnalyzer:
     def __init__(self, manifest_path):
-        self.tree = ET.parse(manifest_path)
+        parser = ET.XMLParser(recover=True)  # Use a more robust parser
+        self.tree = ET.parse(manifest_path, parser)
         self.root = self.tree.getroot()
 
     def get_exported_activities(self):
