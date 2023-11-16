@@ -21,7 +21,7 @@ class AndroidManifestAnalyzer:
             exported = activity.get('{http://schemas.android.com/apk/res/android}exported')
             enabled = activity.get('{http://schemas.android.com/apk/res/android}enabled', "true")
             intent_filters = activity.findall(".//intent-filter", namespaces=ns)
-            if (exported == "true" or (exported is None and intent_filters)) and enabled == "true":
+            if (exported == "true" or (exported is None and intent_filters)) and enabled != "false":
                 name = activity.get('{http://schemas.android.com/apk/res/android}name')
                 activities.append(name)
         return activities
@@ -32,7 +32,7 @@ class AndroidManifestAnalyzer:
         for provider in self.root.findall(".//provider", namespaces=ns):
             exported = provider.get('{http://schemas.android.com/apk/res/android}exported')
             enabled = provider.get('{http://schemas.android.com/apk/res/android}enabled', "true")
-            if exported == "true" and enabled == "true":
+            if exported == "true" and enabled != "false":
                 name = provider.get('{http://schemas.android.com/apk/res/android}name')
                 providers.append(name)
         return providers
@@ -43,7 +43,7 @@ class AndroidManifestAnalyzer:
         for service in self.root.findall(".//service", namespaces=ns):
             exported = service.get('{http://schemas.android.com/apk/res/android}exported')
             enabled = service.get('{http://schemas.android.com/apk/res/android}enabled', "true")
-            if exported == "true" and enabled == "true":
+            if exported == "true" and enabled != "false":
                 name = service.get('{http://schemas.android.com/apk/res/android}name')
                 services.append(name)
         return services
@@ -54,7 +54,7 @@ class AndroidManifestAnalyzer:
         for receiver in self.root.findall(".//receiver", namespaces=ns):
             exported = receiver.get('{http://schemas.android.com/apk/res/android}exported')
             enabled = receiver.get('{http://schemas.android.com/apk/res/android}enabled', "true")
-            if exported == "true" and enabled == "true":
+            if exported == "true" and enabled != "false":
                 name = receiver.get('{http://schemas.android.com/apk/res/android}name')
                 receivers.append(name)
         return receivers
