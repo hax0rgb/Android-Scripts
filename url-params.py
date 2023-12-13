@@ -25,7 +25,7 @@ class AndroidManifestAnalyzer:
             exported = activity.get('{http://schemas.android.com/apk/res/android}exported')
             enabled = activity.get('{http://schemas.android.com/apk/res/android}enabled', "true")
             intent_filters = activity.findall(".//intent-filter", namespaces=ns)
-            if (exported == "true" or (exported is None and intent_filters)) and enabled == "true":
+            if (exported == "true" or (exported is None and intent_filters)) and enabled != "false":
                 name = activity.get('{http://schemas.android.com/apk/res/android}name')
                 activities.append(name)
         return activities
